@@ -59,7 +59,8 @@ class UserRepository {
 	}
 
 	public Mono<Integer> count() {
-		return client.execute().sql("SELECT COUNT(*) FROM users").as(Integer.class).fetch().one();
+		return client.execute().sql("SELECT COUNT(*) FROM users")
+			.map((row, rowMetadata) -> row.get("COUNT(*)")).one().cast(Integer.class);
 	}
 
 	public Flux<User> findAll() {
@@ -69,7 +70,7 @@ class UserRepository {
 	public Mono<User> findOne(String id) {
 		return client
 			.execute()
-			.sql("SELECT * FROM users WHERE login = $1").bind(1, id).as(User.class).fetch().one();
+			.sql("SELECT * FROM users WHERE login = $1").bind("$1", id).as(User.class).fetch().one();
 	}
 
 	public Mono<Void> deleteAll() {
